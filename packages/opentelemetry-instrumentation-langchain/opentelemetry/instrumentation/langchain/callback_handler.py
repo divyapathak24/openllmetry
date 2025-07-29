@@ -32,7 +32,7 @@ from opentelemetry.instrumentation.langchain.utils import (
 )
 from opentelemetry.metrics import Histogram
 from opentelemetry.trace.status import Status, StatusCode
-
+from opentelemetry.semconv.attributes.error_attributes import ERROR_TYPE
 
 @dataclass
 class SpanHolder:
@@ -880,6 +880,8 @@ class TraceloopCallbackHandler(BaseCallbackHandler):
         **kwargs: Any,
     ) -> None:
         """Run when tool errors."""
+        span = self._get_span(run_id)
+        span.set_attribute(ERROR_TYPE, type(error).__name__)
         self._handle_error(error, run_id, parent_run_id, **kwargs)
 
     @dont_throw
